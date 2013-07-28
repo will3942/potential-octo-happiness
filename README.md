@@ -19,3 +19,7 @@ Options
     -o, --help  
     
  
+Benchmarks
+------------
+
+The timing I record using the Ruby script shows that hashing is quicker when using JRuby however JRuby takes longer to startup than standard Ruby.
