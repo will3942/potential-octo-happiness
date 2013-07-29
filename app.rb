@@ -51,46 +51,22 @@ $hashes = lines = IO.read(options[:hashlist]).split("\n")
 $hashesfound = 0
 $hashestofind = $hashes.count
 
-def md5hash (gwords)
-  gwords.each do |gword|
-    md5 = Digest::MD5.hexdigest(gword)
-    if $hashes.include?(md5)
-		  puts "MD5 #{md5} == #{gword}"
-      $hashesfound += 1
-    end
-  end
-end
-
-def sha1hash (gwords)
-  gwords.each do |gword|
-    sha1 = Digest::SHA1.hexdigest(gword)
-    if $hashes.include?(sha1)
-      puts "SHA1 #{sha1} == #{gword}"
-      $hashesfound += 1
-    end
-  end
-end
-
-wordlist = []
-IO.read(options[:dictionary]).each_line do |line|
-  words = line.split
-  wordlist << words[0]
-end
-
-puts "Started hashing"
 $starttime = Time.now
-wordlist.each_slice(400) do |gwords|
+open(options[:dictionary]).each_line do |line|
   if $hashesfound != $hashestofind
+    line = line.gsub(/\n/,"")
+    line = line.gsub(/\r/,"")
     if options[:hashtype].downcase == "md5"
-      Thread.new { md5hash(gwords) }
+      hash = Digest::MD5.hexdigest(line)
     else 
-      Thread.new { sha1hash(gwords) }
+      hash = Digest::SHA1.hexdigest(line)
+    end
+    if $hashes.include?(hash)
+      puts "HASH #{hash} == #{line}"
+      $hashesfound += 1
     end
   else
-    finished = (Time.now - $starttime)
-    puts finished
-    abort("Completed all hashes")
+    puts (Time.now - $starttime)
+    abort("Finished hashing")
   end
 end
-finished = (Time.now - $starttime)
-puts finished
